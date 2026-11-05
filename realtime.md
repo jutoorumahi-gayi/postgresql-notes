@@ -5,10 +5,12 @@ In one production incident, users reported a query taking several minutes instea
 In my current production environment, we use Physical Streaming Replication for High Availability. The primary server streams WAL records continuously to the standby server, and in case of failure we can perform a failover with minimal downtime.
 If a business team requests only a few tables to be replicated to a reporting server, then I would recommend Logical Replication because it allows table-level replication rather than replicating the enfire database cluster.
 
-Production Scenario Answer
+
 In production, if an unexpected primary failure occurs, our priority is restoring service quickly while preventing split-brain. We first confirm which standby has the most current LSN and minimal lag. After promoting it, we validate application connectivity and business transactions. When the failed primary is recovered, we rebuild it as a standby and rejoin it to the cluster. This ensures a single authoritative primary at all times.
+
 100 million rows in a single transaction is risky because it generates massive WAL, increases replication lag, consumes storage, and can lepact application performance.
 I would perform the deletion in batches, for example 10,000 to 100,000 rows per batch, with commits after each batch.
+
 SQL
 DELETE FROM orders
 WHERE created date < 2020-01-01
