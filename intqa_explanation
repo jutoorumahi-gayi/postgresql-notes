@@ -1,5 +1,5 @@
 Recently, replication lag increased because an application team executed a large bulk data load. 
-This generated WAL records faster than the standby could replay them. Using pg_stat_replication, we found a significant gap between the primary LSN and replay LSN. We monitored disk I/O and WAL replay activity on the standby, and after the bulk load completed, replication caught up. We also recommended performing future loads during maintenance windows to avoid replication delays
+This generated WAL records faster than the standby could replay them. Using pg_stat_replication, we found a significant gap between the primary LSN and replay LSN. We monitored disk I/O and WAL replay activity on the standby, and after the bulk load completed, replication caught up. We also recommended performing future loads during maintenance windows to avoid replication delays.
 
 In one production incident, users reported a query taking several minutes instead of a few seconds. I first checked pg stat_activity and found no blocking. Next, using EXPLAIN ANALYZE, I noticed the optimizer had switched from an Index Scan to a Sequential Scan because the table statistics were outdated after a large data load. We executed ANALYZE, refreshed statistics, and the query reverted to using the correct index. Execution time reduced from several minutes back to a few seconds.
 
